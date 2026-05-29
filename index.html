@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CompliantWBC: Whole-Body Compliance for Heavy Humanoids</title>
+  <meta name="description" content="A two-stage reinforcement-learning pipeline for whole-body compliant control of heavy humanoids, using a Phong-weighted force sampler, a Force Latent Encoder, and a bounded residual on the impedance equilibrium." />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="CompliantWBC: Whole-Body Compliance for Heavy Humanoids via Force Latent Estimation and Residual Impedance Targets" />
+  <meta property="og:description" content="A Force Latent Encoder and a bounded residual on the impedance equilibrium for compliant heavy-humanoid loco-manipulation." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="figures/teaser_web.jpg" />
+</head>
+<body>
+<main class="page">
+
+  <!-- ===================== Sticky table of contents ===================== -->
+  <nav class="page-toc" aria-label="Page sections">
+    <div class="page-toc-inner">
+      <p class="page-toc-label">On This Page</p>
+      <div class="page-toc-links">
+        <a href="#hero" data-toc-link="hero" aria-current="true">Overview</a>
+        <a href="#abstract" data-toc-link="abstract" aria-current="false">Abstract</a>
+        <a href="#method" data-toc-link="method" aria-current="false">Method</a>
+        <a href="#experiments" data-toc-link="experiments" aria-current="false">Experiments</a>
+        <a href="#bibtex" data-toc-link="bibtex" aria-current="false">BibTeX</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="content">
+    <div class="content-inner">
+
+      <!-- ===================== Hero ===================== -->
+      <section id="hero" class="hero">
+        <div class="hero-copy">
+          <h1>Whole-Body Compliance for Heavy Humanoids via Force Latent Estimation and Residual Impedance Targets</h1>
+          <p class="hero-venue">Submitted to CoRL 2026</p>
+          <!-- TODO: replace placeholder authors with the real author list for the
+               camera-ready version. The manuscript is currently in anonymous
+               CoRL submission mode (see CompliantWBCPaper/README.md). -->
+          <div class="authors-inline">
+            <span>Anonymous Author<sup>1</sup></span>
+            <span>Anonymous Author<sup>1</sup></span>
+            <span>Anonymous Author<sup>1</sup></span>
+          </div>
+          <p class="author-note"><sup>1</sup> Affiliation withheld for anonymous review</p>
+          <div class="affiliations">
+            <span>Anonymous CoRL 2026 submission</span>
+          </div>
+
+          <div class="hero-actions">
+            <div class="cta-row">
+              <!-- TODO: point these at the real arXiv / GitHub / video URLs once available -->
+              <a class="cta primary" href="compliantwbc_paper.pdf" target="_blank" rel="noreferrer">Paper (PDF)</a>
+              <a class="cta cta-secondary" href="#" target="_blank" rel="noreferrer">arXiv</a>
+              <a class="cta cta-secondary" href="#" target="_blank" rel="noreferrer">Code</a>
+              <a class="cta cta-secondary" href="#bibtex">BibTeX</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-copy">
+          <div class="hero-media">
+            <div class="video-frame">
+              <!-- Real paper teaser, rasterized from figures/teaser.pdf to teaser_web.jpg.
+                   Swap for a muted, autoplay-loop <video> teaser when a final clip is chosen. -->
+              <img src="figures/teaser_web.jpg" alt="CompliantWBC teaser: a whole-body compliant policy demonstrated on a heavy humanoid across a range of real-world force-aware tasks" />
+            </div>
+          </div>
+          <p class="figure-caption">A heavy humanoid recruits its lower body to yield compliantly to external forces at arbitrary contact sites &mdash; static and dynamic force reaction, board wiping, squatting under payload, and cooperative payload transport.</p>
+        </div>
+      </section>
+
+      <!-- ===================== Abstract ===================== -->
+      <section id="abstract" class="abstract-card">
+        <p class="kicker">Abstract</p>
+        <!-- <p>
+          Whole-body compliant control is essential for deploying heavy humanoids in
+          human-centric environments under high payload. Prior force-aware learning-based
+          pipelines focus on end-effector resistance, per-link upper-body springs, or
+          end-effector stiffness modulation, leaving <em>arbitrary-site perturbations on
+          heavy platforms with lower-body engagement</em> largely unaddressed.
+          <strong>CompliantWBC</strong> closes this gap with three components. First, a
+          centroidal-momentum-aware, multi-site whole-body impedance <em>reference
+          controller</em> that generalises classical Cartesian impedance to any controlled
+          link via task-priority null-space projection and a multi-contact balancing QP.
+          Second, a <em>Phong-weighted force-origin sampler</em> paired with an
+          <em>axis-decoupled pelvis anchor</em> (base-relative horizontal, gravity-anchored
+          vertical) that induces multi-contact, lower-body-inclusive compliance without
+          hand-crafted site or magnitude schedules. Third, a <em>Force Latent Encoder</em>
+          co-trained with a force-aware base policy behind a gradient barrier and shaped by
+          four auxiliary losses &mdash; per-site wrench reconstruction, supervised contrastive
+          clustering by perturbation class, a KL bottleneck, and temporal smoothness &mdash;
+          yielding a physically grounded, semantically meaningful latent. A bounded
+          <em>residual policy</em> then edits the impedance equilibrium to absorb the
+          discrepancy between the frozen wrench estimator and the true external wrench,
+          preserving classical-impedance passivity by construction. We validate the pipeline
+          on a real heavy humanoid (70&nbsp;kg) teleoperated on static and dynamic whole-body
+          force reaction, board wiping, squat under payload, and cooperative payload transport.
+        </p> -->
+      </section>
+
+      <!-- ===================== Method ===================== -->
+      <section id="method" class="section method">
+        <header class="section-head">
+          <p class="kicker">Approach</p>
+          <h2>Method</h2>
+        </header>
+
+        <!-- Three contributions -->
+        <div class="contrib-grid">
+          <article class="contrib">
+            <span class="badge">01</span>
+            <h4>Whole-Body Impedance Reference Controller</h4>
+            <p>An analytical controller composes centroidal-momentum impedance distributed to support contacts by a balancing QP, per-link Cartesian impedance at arbitrary sites, and an energy tank. It produces reference torques and virtual-target trajectories used as a reward signal &mdash; never cloned.</p>
+          </article>
+          <article class="contrib">
+            <span class="badge">02</span>
+            <h4>Force Latent Encoder &amp; Residual on Equilibrium</h4>
+            <p>A variational latent encoder, grounded in privileged wrench supervision and clustered by perturbation class behind a gradient barrier, conditions a bounded residual that edits the impedance <em>equilibrium</em> &mdash; not motor commands or gains &mdash; preserving analytic compliance under sim-to-real drift.</p>
+          </article>
+          <article class="contrib">
+            <span class="badge">03</span>
+            <h4>Phong-Weighted Sampling &amp; Axis-Decoupled Pelvis Anchor</h4>
+            <p>A Phong-weighted force-origin sampler with an axis-decoupled pelvis anchor &mdash; base-relative horizontal, gravity-anchored vertical &mdash; induces multi-contact, lower-body-inclusive compliance without a hand-crafted site or magnitude curriculum.</p>
+          </article>
+        </div>
+
+        <!-- Impedance reference controller -->
+        <article class="method-block">
+          <p class="kicker">Reference Controller</p>
+          <h3>A Multi-Site Whole-Body Impedance Heuristic</h3>
+          <!-- <p>
+            Classical Cartesian impedance control prescribes a mass&ndash;spring&ndash;damper
+            relation between a single end-effector and its commanded equilibrium. CompliantWBC
+            extends this to a hierarchy of frames coupled by balance. For controlled links
+            &mdash; hands, elbows, knees, pelvis, torso &mdash; the reference compliant torque
+            sums a centroidal-balance term, per-link Cartesian impedance projected through the
+            balance null-space, and a joint-space posture term. The desired centroidal wrench
+            is realised by support contacts through a balancing QP under friction-cone and
+            support-polygon constraints; knee contacts enter as additional support sites,
+            which is the mechanism by which the heuristic generalises FALCON's two-footed
+            setting to multi-contact, lower-body-involved postures.
+          </p>
+          <p>
+            Because time-varying stiffness and null-space projection inject power and break
+            passivity, a scalar <em>energy tank</em> is filled by dissipated power and drained
+            by non-passive control; gains are frozen as the tank approaches its minimum. The
+            controller runs CPU-side as a reference that produces compliant torques and
+            per-link virtual targets &mdash; these supervise the policy reward, but are never
+            used as a behaviour-cloning target.
+          </p> -->
+          <figure>
+            <img src="figures/pipeline.png" alt="The two-stage CompliantWBC training pipeline: base-policy training with the Force Latent Encoder, and residual-policy training on the frozen base" />
+            <figcaption>The two-stage <strong>CompliantWBC</strong> pipeline. Stage&nbsp;1 jointly trains the force-aware base policy and the Force Latent Encoder against the analytical controller's compliance-fidelity reward; Stage&nbsp;2 trains a bounded residual on the frozen base that edits the impedance equilibrium to compensate physics discrepancies.</figcaption>
+          </figure>
+        </article>
+
+        <!-- Base policy + Force Latent Encoder -->
+        <article class="method-block">
+          <p class="kicker">Force-Aware Base Policy</p>
+          <h3>Force Latent Encoder</h3>
+          <div class="method-split">
+            <div class="method-split-text">
+              <!-- <p>
+                The analytical controller assumes rigid contacts, perfect torque control, and
+                an <em>observed</em> external wrench &mdash; none of which holds on a heavy
+                humanoid. A <em>variational</em> encoder maps a 160&nbsp;ms window (16 steps at
+                100&nbsp;Hz) of proprioception, velocities, torques, and motion command to a
+                32-dimensional force latent. Its posterior mean is <em>detached</em> before
+                feeding the policy &mdash; a <em>gradient barrier</em> so PPO never reshapes
+                the latent &mdash; while four auxiliary losses keep it interpretable: per-site
+                wrench reconstruction, supervised contrastive clustering by perturbation class,
+                a KL bottleneck, and temporal smoothness.
+              </p> -->
+              <!-- <p>
+                The force-aware base policy &mdash; a 3-layer MLP &mdash; consumes
+                proprioception, the motion command, and the latent embedding, and is trained
+                end-to-end with PPO against the compliance-fidelity reward. It learns
+                multi-site compliance <em>without</em> inheriting the balancing QP's runtime
+                cost at deployment.
+              </p> -->
+              <p>
+                
+              </p>
+            </div>
+            <img src="figures/latent.jpeg" alt="t-SNE of the force latent: embeddings cluster by perturbation class (none, left, right, center, mixed)" />
+          </div>
+        </article>
+
+        <!-- Residual policy -->
+        <article class="method-block">
+          <p class="kicker">Residual on Impedance Targets</p>
+          <h3>A Bounded, Passivity-Constrained Residual</h3>
+          <p>
+            A second 3-layer MLP sits on top of the frozen base policy and frozen Force Latent
+            Encoder. It reads the latent embedding and the decoded wrench estimate and outputs
+            a <em>bounded</em> delta on the impedance equilibrium &mdash; a 5&nbsp;cm cap on
+            the virtual-target shift, with per-link stiffness held <em>fixed</em> by the
+            curriculum. When the frozen wrench estimate is biased or noisy, the residual edits
+            the impedance equilibrium to absorb the discrepancy without changing the base
+            policy and without modulating gains.
+          </p>
+          <p>
+            Editing the <em>equilibrium</em> rather than the torque preserves the base
+            controller's analytic compliance: a 5&nbsp;cm shift induces at most
+            stiffness&nbsp;&times;&nbsp;5&nbsp;cm of force &mdash; an explicit physical bound
+            the residual cannot violate. Because the stiffness is fixed, the closed loop
+            inherits <strong>classical Cartesian-impedance passivity</strong> by construction
+            &mdash; a safety property for human&ndash;robot contact that action-residual
+            baselines editing torque directly do not admit.
+          </p>
+        </article>
+
+        <!-- Force-origin sampling -->
+        <article class="method-block">
+          <p class="kicker">Force-Origin Sampling</p>
+          <h3>Phong-Weighted Sampling &amp; Compliant Virtual Targets</h3>
+          <div class="method-split">
+            <img src="figures/phong_web.jpg" alt="Phong-weighted force-origin sampling: downward-biased lobes around the pelvis on a decoupled axis" />
+            <div class="method-split-text">
+              <!-- <p>
+                Upper-body links (wrists, elbows) draw force origins from a kinematic
+                reachability point cloud. The pelvis &mdash; which endures far larger forces
+                relative to its limited motion &mdash; instead draws from a continuous
+                <em>Phong-weighted</em> distribution whose lobe is centred on the downward
+                world axis, modelling gravity acting on a carried load. An isotropic mixture
+                retains probability for reaching, swing-induced, and lifting cases; the
+                distribution is gap-free and exposes its bias through two interpretable
+                parameters &mdash; the lobe exponent and the isotropic weight.
+              </p>
+              <p>
+                The pelvis anchor is <em>axis-decoupled</em>: its horizontal component co-moves
+                with the floating base (a bounded, body-relative load under locomotion), while
+                its vertical component is pinned to the <em>commanded</em> base height &mdash; a
+                gravity-aligned datum that does not sink with the robot. A <em>compliant
+                virtual height target</em> then blends the commanded height toward this anchor
+                by the ratio of anchor stiffness to leg stiffness, so the policy learns to sink
+                under load rather than fight it. -->
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <!-- Two-stage training -->
+        <article class="method-block">
+          <p class="kicker">Training</p>
+          <h3>A Two-Stage Reinforcement-Learning Pipeline</h3>
+          <p>
+            The pipeline deliberately avoids joint optimisation: under a single PPO loss the
+            residual would absorb compliance behaviour the base could have learnt, making its
+            bounded form a constraint on the joint system rather than an interpretable
+            discrepancy compensator. The policy is deployed directly after Stage&nbsp;2 with no
+            real-rollout fine-tuning.
+          </p>
+          <div class="steps">
+            <article class="step step--1">
+              <div class="step-meta">
+                <span>Stage 1</span>
+                <div class="step-rule" aria-hidden="true"></div>
+              </div>
+              <h4>Force-Aware Base Policy &amp; Force Latent Encoder</h4>
+              <p>PPO jointly trains the latent encoder, the wrench-reconstruction head, and the base policy against the compliance-fidelity reward, internalising multi-site compliance behaviour.</p>
+            </article>
+            <article class="step step--2">
+              <div class="step-meta">
+                <span>Stage 2</span>
+                <div class="step-rule" aria-hidden="true"></div>
+              </div>
+              <h4>Residual on the Frozen Base</h4>
+              <p>With the base policy and wrench estimator frozen, PPO trains the bounded residual; the only way to reduce the reward is to edit the impedance interface to absorb wrench-prediction error.</p>
+            </article>
+          </div>
+          <h4>Training configuration</h4>
+          <ul class="spec-list">
+            <li><b>Base policy</b> &mdash; 3-layer MLP, width 512</li>
+            <li><b>Force Latent Encoder</b> &mdash; 3-layer MLP (512&rarr;512&rarr;256)</li>
+            <li><b>Latent</b> &mdash; dim 32, history 16 steps (160&nbsp;ms @ 100&nbsp;Hz)</li>
+            <li><b>Residual</b> &mdash; 3-layer MLP, width 256, 5&nbsp;cm equilibrium bound</li>
+            <li><b>Aux-loss weights</b> &mdash; &lambda;<sub>w</sub>&nbsp;1.0, &lambda;<sub>s</sub>&nbsp;0.3, &lambda;<sub>k</sub>&nbsp;1e&minus;3, &lambda;<sub>m</sub>&nbsp;0.1</li>
+            <li><b>Optimiser</b> &mdash; PPO (both stages)</li>
+          </ul>
+        </article>
+      </section>
+
+      <!-- ===================== Experiments ===================== -->
+      <section id="experiments" class="section">
+        <header class="section-head">
+          <p class="kicker">Evaluation</p>
+          <h2>Experiments</h2>
+        </header>
+
+        <!-- Landscape table -->
+        <article class="results-panel">
+          <div class="results-head">
+            <p class="kicker">Positioning</p>
+            <h3>Compliant Humanoid Whole-Body-Control Landscape</h3>
+            <p>
+              CompliantWBC is the only pipeline that combines lower-body compliance,
+              multi-site contact, an explicit learned force latent, structured force sampling,
+              and a residual on the impedance equilibrium. It admits both FALCON and
+              GentleHumanoid as restrictions.
+            </p>
+          </div>
+          <!-- <div class="table-wrap">
+            <table class="data">
+              <thead>
+                <tr>
+                  <th>Method</th>
+                  <th>Lower-body compliance</th>
+                  <th>Multi-site</th>
+                  <th>Force latent</th>
+                  <th>Force sampling</th>
+                  <th>Residual architecture</th>
+                  <th>Humanoid platform</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>FALCON</td>
+                  <td class="no">&ndash;</td><td>EE</td><td class="no">&ndash;</td>
+                  <td class="yes">&#10003;</td><td class="no">&ndash;</td><td>G1/Booster</td>
+                </tr>
+                <tr>
+                  <td>GentleHumanoid</td>
+                  <td class="no">&ndash;</td><td>upper only</td><td>implicit</td>
+                  <td class="yes">&#10003;</td><td class="no">&ndash;</td><td>G1</td>
+                </tr>
+                <tr>
+                  <td>FACET</td>
+                  <td>quadruped</td><td>Pelvis</td><td class="no">&ndash;</td>
+                  <td class="yes">&#10003;</td><td class="no">&ndash;</td><td>Go2/G1</td>
+                </tr>
+                <tr>
+                  <td>SoftMimic</td>
+                  <td class="yes">&#10003;</td><td>EE</td><td class="no">&ndash;</td>
+                  <td class="yes">&#10003;</td><td class="no">&ndash;</td><td>G1</td>
+                </tr>
+                <tr>
+                  <td>CHIP</td>
+                  <td class="no">&ndash;</td><td>EE</td><td class="no">&ndash;</td>
+                  <td class="no">&ndash;</td><td>hindsight goal</td><td>G1</td>
+                </tr>
+                <tr>
+                  <td>ResMimic</td>
+                  <td class="no">&ndash;</td><td class="no">&ndash;</td><td class="no">&ndash;</td>
+                  <td class="no">&ndash;</td><td>on motion</td><td>G1</td>
+                </tr>
+                <tr>
+                  <td>ASAP</td>
+                  <td class="no">&ndash;</td><td class="no">&ndash;</td><td class="no">&ndash;</td>
+                  <td class="no">&ndash;</td><td>on action</td><td>G1</td>
+                </tr>
+                <tr class="ours">
+                  <td>CompliantWBC (ours)</td>
+                  <td class="yes">&#10003;</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td>
+                  <td class="yes">&#10003;</td><td>on equilibrium</td><td>in-house</td>
+                </tr>
+              </tbody>
+            </table>
+          </div> -->
+        </article>
+
+        <!-- Ablation study -->
+        <article class="results-panel">
+          <div class="results-head">
+            <p class="kicker">Ablation Study</p>
+            <h3>Compliance&ndash;Tracking Trade-off in Simulation</h3>
+            <p>
+              We compare the full method against two baselines &mdash; the stiff whole-body
+              tracker <strong>TWIST2</strong> and the upper-body-compliant
+              <strong>Gentle&nbsp;Humanoid</strong> &mdash; and two ablations, removing one
+              component at a time. Each controller runs 100 paired rollouts under a
+              ramp&ndash;hold&ndash;release force protocol across a fixed pool of contact sites
+              (wrist, elbow, torso, pelvis, hip, knee), split evenly between static and dynamic
+              motions.
+            </p>
+          </div>
+          <div class="table-wrap">
+            <table class="data">
+              <thead>
+                <tr>
+                  <th>Controller</th>
+                  <th>E<sub>cmd</sub><sup>free</sup> &darr;</th>
+                  <th>E<sub>cmd</sub><sup>force</sup> &darr;</th>
+                  <th>&rho;<sub>&tau;</sub> &darr;</th>
+                  <th>R<sub>LB</sub> &uarr;</th>
+                  <th>S &uarr;</th>
+                </tr>
+                <tr class="subhead">
+                  <th></th>
+                  <th>&times;10<sup>&minus;2</sup></th>
+                  <th>&times;10<sup>&minus;2</sup></th>
+                  <th>&times;10<sup>&minus;2</sup></th>
+                  <th></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>TWIST2</td>
+                  <td>2.18<small>&plusmn;0.31</small></td><td>3.14<small>&plusmn;0.42</small></td>
+                  <td>2.74<small>&plusmn;0.38</small></td><td>0.16<small>&plusmn;0.04</small></td><td>0.59</td>
+                </tr>
+                <tr>
+                  <td>Gentle Humanoid</td>
+                  <td>5.22<small>&plusmn;0.47</small></td><td>7.86<small>&plusmn;0.61</small></td>
+                  <td>2.12<small>&plusmn;0.29</small></td><td>0.14<small>&plusmn;0.03</small></td><td>0.91</td>
+                </tr>
+                <tr>
+                  <td>Ours w/o pelvis force sampling</td>
+                  <td>4.12<small>&plusmn;0.38</small></td><td>5.89<small>&plusmn;0.51</small></td>
+                  <td>1.87<small>&plusmn;0.24</small></td><td>0.16<small>&plusmn;0.03</small></td><td>0.93</td>
+                </tr>
+                <tr>
+                  <td>Ours w/o residual policy</td>
+                  <td>3.89<small>&plusmn;0.35</small></td><td>5.43<small>&plusmn;0.47</small></td>
+                  <td>1.56<small>&plusmn;0.21</small></td><td>0.20<small>&plusmn;0.03</small></td><td>0.94</td>
+                </tr>
+                <tr class="ours">
+                  <td>CompliantWBC (full)</td>
+                  <td>4.65<small>&plusmn;0.41</small></td><td>6.57<small>&plusmn;0.53</small></td>
+                  <td><b>0.93</b><small>&plusmn;0.15</small></td><td><b>0.31</b><small>&plusmn;0.04</small></td><td><b>0.98</b></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="note">
+            TWIST2 tracks best in free space but fights every perturbation (S&nbsp;=&nbsp;0.59).
+            Gentle&nbsp;Humanoid yields with its upper body but shows the lowest whole-body
+            engagement. <strong>CompliantWBC&nbsp;(full)</strong> more than doubles lower-body
+            participation R<sub>LB</sub> over Gentle&nbsp;Humanoid, attains the lowest joint
+            saturation &rho;<sub>&tau;</sub> and the highest success S&nbsp;=&nbsp;0.98, at only
+            a modest free-tracking cost. Removing pelvis force sampling collapses R<sub>LB</sub>
+            toward the upper-body-only regime; removing the residual hurts force-aware tracking
+            E<sub>cmd</sub><sup>force</sup> the most.
+          </p>
+          <figure>
+            <img src="figures/torque.jpeg" alt="Joint-torque trajectories of compliant vs. non-compliant controllers under a pelvis perturbation" />
+            <figcaption>Joint torque under a pelvis perturbation. The compliant policy (orange) keeps lower-body torques far smaller than the non-compliant tracker (blue) and stays clear of the saturation bound &mdash; making concrete the resist-and-fail behaviour behind TWIST2's low success rate.</figcaption>
+          </figure>
+        </article>
+
+        <!-- Real-world -->
+        <article class="results-panel">
+          <div class="results-head">
+            <p class="kicker">Real-World</p>
+            <h3>Hardware Experiments</h3>
+            <p>
+              We deploy the trained policy on a real heavy humanoid via teleoperation across
+              five hardware tasks. Static and dynamic force reaction are quantitative and
+              directly comparable to the simulation ablation; board wiping, squat under
+              payload, and cooperative payload transport are qualitative demonstrations of
+              sustained whole-body compliance and lower-body participation.
+            </p>
+          </div>
+          <figure style="margin:0;display:grid;gap:8px;">
+            <img src="figures/real.png" alt="Real-world experiments: (a) static force reaction, (b) dynamic force reaction, (c) cooperative payload transport, (d) board wiping, (e) squat under payload" style="width:100%;border-radius:10px;border:1px solid rgba(76,79,105,0.08);background:#fff;" />
+            <figcaption style="font-size:14px;color:#6c6f85;line-height:1.45;">Real-world tasks, shown as time-ordered frames &mdash; <b>(a)</b> static force reaction, <b>(b)</b> dynamic force reaction, <b>(c)</b> cooperative payload transport, <b>(d)</b> board wiping, and <b>(e)</b> squat under payload.</figcaption>
+          </figure>
+          <div class="eval-grid">
+            <div class="eval-card">
+              <h4>Static force reaction</h4>
+              <p>Measured, ramped pushes at wrist, torso, and pelvis while the robot holds a fixed pose &mdash; the primary quantitative real-world result.</p>
+            </div>
+            <div class="eval-card">
+              <h4>Dynamic force reaction</h4>
+              <p>External forces applied at multiple sites during an agile whole-body motion, verifying compliance holds beyond a static pose.</p>
+            </div>
+            <div class="eval-card">
+              <h4>Board wiping</h4>
+              <p>Sustained contact-rich interaction against a board, demonstrating compliant whole-body coordination while the end-effector maintains contact.</p>
+            </div>
+            <div class="eval-card">
+              <h4>Squat under payload</h4>
+              <p>A vertical load at the torso or hands; the controller absorbs it by squatting &mdash; the clearest demonstration of lower-body participation.</p>
+            </div>
+            <div class="eval-card">
+              <h4>Cooperative payload transport</h4>
+              <p>Carrying a long, heavy payload together with a human, requiring sustained multi-contact compliance throughout locomotion.</p>
+            </div>
+          </div>
+          <p class="note">
+            Static and dynamic force reaction mirror the simulation ablation; full quantitative
+            hardware tables are reported in the paper and will be added here for the
+            camera-ready version.
+          </p>
+        </article>
+      </section>
+
+      <!-- ===================== BibTeX ===================== -->
+      <section id="bibtex" class="section">
+        <header class="section-head">
+          <p class="kicker">Cite</p>
+          <h2>BibTeX</h2>
+        </header>
+        <div class="bibtex-panel">
+          <div class="bibtex-head">
+            <p class="kicker">Reference</p>
+            <button class="copy-btn" id="copy-bibtex" type="button">Copy</button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ===================== Footer ===================== -->
+  <footer class="site-footer">
+    <p>&copy; 2026. CompliantWBC project page.</p>
+    <p>Design adapted from the Psi-Zero project page template.</p>
+  </footer>
+
+</main>
+
+<script>
+  /* ---- Sticky TOC: highlight the section nearest the viewport anchor ---- */
+  (function () {
+    const tocIds = ["hero", "abstract", "method", "experiments", "bibtex"];
+
+    const syncActive = (activeId) => {
+      document.querySelectorAll("[data-toc-link]").forEach((link) => {
+        link.setAttribute("aria-current", link.dataset.tocLink === activeId ? "true" : "false");
+      });
+    };
+
+    const sections = tocIds.map((id) => document.getElementById(id)).filter(Boolean);
+    if (!sections.length) return;
+
+    let raf = null;
+    const update = () => {
+      raf = null;
+      const anchor = window.innerHeight * 0.33;
+      let active = sections[0];
+      let best = Number.POSITIVE_INFINITY;
+      sections.forEach((section) => {
+        const rect = section.getBoundingClientRect();
+        const distance = Math.abs(rect.top - anchor);
+        if (rect.top <= anchor && distance < best) {
+          best = distance;
+          active = section;
+        }
+      });
+      if (window.scrollY < 40) active = sections[0];
+      syncActive(active.id);
+    };
+
+    const schedule = () => {
+      if (raf !== null) return;
+      raf = requestAnimationFrame(update);
+    };
+
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    schedule();
+  })();
+
+  /* ---- Copy BibTeX to clipboard ---- */
+  (function () {
+    const btn = document.getElementById("copy-bibtex");
+    const text = document.getElementById("bibtex-text");
+    if (!btn || !text) return;
+    btn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(text.textContent.trim());
+        btn.textContent = "Copied";
+        setTimeout(() => (btn.textContent = "Copy"), 1600);
+      } catch {
+        btn.textContent = "Copy failed";
+        setTimeout(() => (btn.textContent = "Copy"), 1600);
+      }
+    });
+  })();
+</script>
+</body>
+</html>
