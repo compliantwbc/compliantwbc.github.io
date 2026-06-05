@@ -396,7 +396,8 @@ img, video {
 }
 
 .method-split .method-split-text { display: grid; gap: 10px; }
-.method-split img {
+.method-split img,
+.method-split video {
   width: 100%;
   border-radius: var(--radius-s);
   border: 1px solid rgba(76, 79, 105, 0.08);
