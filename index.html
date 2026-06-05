@@ -24,6 +24,7 @@
       <div class="page-toc-links">
         <a href="#hero" data-toc-link="hero" aria-current="true">Overview</a>
         <a href="#abstract" data-toc-link="abstract" aria-current="false">Abstract</a>
+        <a href="#video" data-toc-link="video" aria-current="false">Video</a>
         <a href="#method" data-toc-link="method" aria-current="false">Method</a>
         <a href="#experiments" data-toc-link="experiments" aria-current="false">Experiments</a>
         <a href="#bibtex" data-toc-link="bibtex" aria-current="false">BibTeX</a>
@@ -67,9 +68,9 @@
         <div class="hero-copy">
           <div class="hero-media">
             <div class="video-frame">
-              <!-- Real paper teaser, rasterized from figures/teaser.pdf to teaser_web.jpg.
+              <!-- Real paper teaser, rasterized from figures/teaser.pdf to teaser_web.png.
                    Swap for a muted, autoplay-loop <video> teaser when a final clip is chosen. -->
-              <img src="figures/teaser_web.jpg" alt="CompliantWBC teaser: a whole-body compliant policy demonstrated on a heavy humanoid across a range of real-world force-aware tasks" />
+              <img src="figures/teaser_web.png" alt="CompliantWBC teaser: a whole-body compliant policy demonstrated on a heavy humanoid across a range of real-world force-aware tasks" />
             </div>
           </div>
           <p class="figure-caption">A heavy humanoid recruits its lower body to yield compliantly to external forces at arbitrary contact sites &mdash; static and dynamic force reaction, board wiping, squatting under payload, and cooperative payload transport.</p>
@@ -92,6 +93,17 @@
           dynamic force reaction, board wiping, squat under payload, and cooperative payload
           transport.
         </p>
+      </section>
+
+      <!-- ===================== Overview video ===================== -->
+      <section id="video" class="section">
+        <header class="section-head">
+          <p class="kicker">Overview</p>
+          <h2>Video</h2>
+        </header>
+        <div class="video-frame">
+          <video src="figures/video_real/compliantWBC.mp4" controls playsinline preload="metadata" poster="figures/teaser_web.png"></video>
+        </div>
       </section>
 
       <!-- ===================== Method ===================== -->
@@ -473,7 +485,7 @@
   <!-- ===================== Footer ===================== -->
   <footer class="site-footer">
     <p>&copy; 2026. CompliantWBC project page.</p>
-    <p>Design adapted from the Psi-Zero project page template.</p>
+    <p>Design adapted from the <a href="https://psi-lab.ai/Psi0/" target="_blank" rel="noreferrer">Psi-Zero project page template</a>.</p>
   </footer>
 
 </main>
@@ -481,7 +493,7 @@
 <script>
   /* ---- Sticky TOC: highlight the section nearest the viewport anchor ---- */
   (function () {
-    const tocIds = ["hero", "abstract", "method", "experiments", "bibtex"];
+    const tocIds = ["hero", "abstract", "video", "method", "experiments", "bibtex"];
 
     const syncActive = (activeId) => {
       document.querySelectorAll("[data-toc-link]").forEach((link) => {
