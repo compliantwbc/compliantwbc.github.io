@@ -420,6 +420,62 @@
           </figure>
         </article>
 
+        <!-- Qualitative results -->
+        <article class="results-panel">
+          <div class="results-head">
+            <p class="kicker">Qualitative Results</p>
+            <h3>Compliant Yielding and Multi-Site Flexibility in Simulation</h3>
+            <p>
+              Two short simulated demonstrations make the compliance behaviour visible.
+              First, a side-by-side comparison of our compliant policy against a stiff
+              tracker under the same upward arm force; second, the same single policy
+              yielding to forces applied at three different contact sites.
+            </p>
+          </div>
+
+          <div class="qual-block">
+            <h4 class="qual-title">Compliant policy vs. stiff policy</h4>
+            <p class="qual-desc">
+              Under an identical upward force at the arm, the compliant policy recruits
+              the whole body to yield, while the stiff policy resists and is driven off
+              balance.
+            </p>
+            <div class="qual-compare">
+              <figure>
+                <video src="figures/video_sim/compare_sim/output_compliant_arm_up.mp4" autoplay loop muted playsinline preload="metadata" aria-label="Compliant policy yielding to an upward arm force in simulation"></video>
+                <figcaption>Ours (compliant)</figcaption>
+              </figure>
+              <figure>
+                <video src="figures/video_sim/compare_sim/output_stiff_arm_up.mp4" autoplay loop muted playsinline preload="metadata" aria-label="Stiff policy resisting an upward arm force in simulation"></video>
+                <figcaption>Stiff policy</figcaption>
+              </figure>
+            </div>
+          </div>
+
+          <div class="qual-block">
+            <h4 class="qual-title">Multi-site flexibility</h4>
+            <p class="qual-desc">
+              A single policy yields compliantly to forces applied at the shoulder, the
+              wrist, and the pelvis &mdash; no per-site tuning. Clips are center-cropped
+              to vertical to focus on the robot.
+            </p>
+            <div class="qual-multisite">
+              <figure>
+                <video src="figures/video_sim/multi_site/output_pull_shoulder.mp4" autoplay loop muted playsinline preload="metadata" aria-label="Policy yielding to a force at the shoulder"></video>
+                <figcaption>Shoulder</figcaption>
+              </figure>
+              <figure>
+                <video src="figures/video_sim/multi_site/output_pull_wrist.mp4" autoplay loop muted playsinline preload="metadata" aria-label="Policy yielding to a force at the wrist"></video>
+                <figcaption>Wrist</figcaption>
+              </figure>
+              <figure>
+                <video src="figures/video_sim/multi_site/output_squat.mp4" autoplay loop muted playsinline preload="metadata" aria-label="Policy squatting under a downward force at the pelvis"></video>
+                <figcaption>Pelvis</figcaption>
+              </figure>
+            </div>
+          </div>
+        </article>
+
         <!-- Real-world -->
         <article class="results-panel">
           <div class="results-head">
@@ -433,31 +489,55 @@
               sustained whole-body compliance and lower-body participation.
             </p>
           </div>
-          <div class="eval-grid">
-            <div class="eval-card">
-              <video src="figures/video_real/static.MP4" autoplay loop muted playsinline preload="metadata"></video>
-              <h4>Static force reaction</h4>
-              <p>Measured, ramped pushes at wrist, torso, and pelvis while the robot holds a fixed pose &mdash; the primary quantitative real-world result.</p>
+          <div class="hw-gallery" id="hw-gallery" data-current="figures/video_real/static.MP4">
+            <!-- Thumbnail strip: hover or click to load into the stage below -->
+            <div class="hw-thumbs" role="tablist" aria-label="Hardware experiment clips">
+              <button class="hw-thumb is-active" type="button" role="tab" aria-selected="true"
+                data-src="figures/video_real/static.MP4"
+                data-title="Static force reaction"
+                data-desc="Measured, ramped pushes at wrist, torso, and pelvis while the robot holds a fixed pose &mdash; the primary quantitative real-world result.">
+                <video src="figures/video_real/static.MP4#t=0.1" muted loop playsinline preload="metadata" tabindex="-1"></video>
+                <span class="hw-thumb-label">Static force reaction</span>
+              </button>
+              <button class="hw-thumb" type="button" role="tab" aria-selected="false"
+                data-src="figures/video_real/dynamic.MP4"
+                data-title="Dynamic force reaction"
+                data-desc="External forces applied at multiple sites during an agile whole-body motion, verifying compliance holds beyond a static pose.">
+                <video src="figures/video_real/dynamic.MP4#t=0.1" muted loop playsinline preload="metadata" tabindex="-1"></video>
+                <span class="hw-thumb-label">Dynamic force reaction</span>
+              </button>
+              <button class="hw-thumb" type="button" role="tab" aria-selected="false"
+                data-src="figures/video_real/wiping.MP4"
+                data-title="Board wiping"
+                data-desc="Sustained contact-rich interaction against a board, demonstrating compliant whole-body coordination while the end-effector maintains contact.">
+                <video src="figures/video_real/wiping.MP4#t=0.1" muted loop playsinline preload="metadata" tabindex="-1"></video>
+                <span class="hw-thumb-label">Board wiping</span>
+              </button>
+              <button class="hw-thumb" type="button" role="tab" aria-selected="false"
+                data-src="figures/video_real/squat.MP4"
+                data-title="Squat under payload"
+                data-desc="A vertical load at the torso or hands; the controller absorbs it by squatting &mdash; the clearest demonstration of lower-body participation.">
+                <video src="figures/video_real/squat.MP4#t=0.1" muted loop playsinline preload="metadata" tabindex="-1"></video>
+                <span class="hw-thumb-label">Squat under payload</span>
+              </button>
+              <button class="hw-thumb" type="button" role="tab" aria-selected="false"
+                data-src="figures/video_real/transport.MP4"
+                data-title="Cooperative payload transport"
+                data-desc="Carrying a long, heavy payload together with a human, requiring sustained multi-contact compliance throughout locomotion.">
+                <video src="figures/video_real/transport.MP4#t=0.1" muted loop playsinline preload="metadata" tabindex="-1"></video>
+                <span class="hw-thumb-label">Cooperative payload transport</span>
+              </button>
             </div>
-            <div class="eval-card">
-              <video src="figures/video_real/dynamic.MP4" autoplay loop muted playsinline preload="metadata"></video>
-              <h4>Dynamic force reaction</h4>
-              <p>External forces applied at multiple sites during an agile whole-body motion, verifying compliance holds beyond a static pose.</p>
-            </div>
-            <div class="eval-card">
-              <video src="figures/video_real/wiping.MP4" autoplay loop muted playsinline preload="metadata"></video>
-              <h4>Board wiping</h4>
-              <p>Sustained contact-rich interaction against a board, demonstrating compliant whole-body coordination while the end-effector maintains contact.</p>
-            </div>
-            <div class="eval-card">
-              <video class="portrait" src="figures/video_real/squat.MP4" autoplay loop muted playsinline preload="metadata"></video>
-              <h4>Squat under payload</h4>
-              <p>A vertical load at the torso or hands; the controller absorbs it by squatting &mdash; the clearest demonstration of lower-body participation.</p>
-            </div>
-            <div class="eval-card">
-              <video src="figures/video_real/transport.MP4" autoplay loop muted playsinline preload="metadata"></video>
-              <h4>Cooperative payload transport</h4>
-              <p>Carrying a long, heavy payload together with a human, requiring sustained multi-contact compliance throughout locomotion.</p>
+
+            <!-- Main stage: full-size clip + task description -->
+            <div class="hw-stage">
+              <div class="hw-stage-video">
+                <video id="hw-main-video" src="figures/video_real/static.MP4#t=0.1" autoplay loop muted playsinline preload="metadata"></video>
+              </div>
+              <div class="hw-stage-info">
+                <h4 id="hw-main-title">Static force reaction</h4>
+                <p id="hw-main-desc">Measured, ramped pushes at wrist, torso, and pelvis while the robot holds a fixed pose &mdash; the primary quantitative real-world result.</p>
+              </div>
             </div>
           </div>
           <p class="note">
@@ -534,6 +614,37 @@
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule);
     schedule();
+  })();
+
+  /* ---- Hardware gallery: hover/click a thumbnail to load the stage ---- */
+  (function () {
+    const gallery = document.getElementById("hw-gallery");
+    if (!gallery) return;
+    const main = document.getElementById("hw-main-video");
+    const title = document.getElementById("hw-main-title");
+    const desc = document.getElementById("hw-main-desc");
+    const thumbs = Array.from(gallery.querySelectorAll(".hw-thumb"));
+
+    const select = (btn) => {
+      thumbs.forEach((t) => {
+        const on = t === btn;
+        t.classList.toggle("is-active", on);
+        t.setAttribute("aria-selected", on ? "true" : "false");
+      });
+      title.innerHTML = btn.dataset.title;
+      desc.innerHTML = btn.dataset.desc;
+      if (gallery.dataset.current === btn.dataset.src) return;
+      gallery.dataset.current = btn.dataset.src;
+      main.src = btn.dataset.src + "#t=0.1";
+      main.load();
+      main.play().catch(() => {});
+    };
+
+    thumbs.forEach((btn) => {
+      btn.addEventListener("mouseenter", () => select(btn));
+      btn.addEventListener("focus", () => select(btn));
+      btn.addEventListener("click", () => select(btn));
+    });
   })();
 
   /* ---- Copy BibTeX to clipboard ---- */
