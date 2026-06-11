@@ -39,11 +39,11 @@
       <section id="hero" class="hero">
         <div class="hero-copy">
           <h1>Whole-Body Compliance for Heavy Humanoids via Force Latent Estimation and Residual Impedance Targets</h1>
-          <p class="hero-venue">Submitted to CoRL 2026</p>
+          <!-- <p class="hero-venue">Submitted to CoRL 2026</p> -->
           <!-- TODO: replace placeholder authors with the real author list for the
                camera-ready version. The manuscript is currently in anonymous
                CoRL submission mode (see CompliantWBCPaper/README.md). -->
-          <div class="authors-inline">
+          <!-- <div class="authors-inline">
             <span>Anonymous Author<sup>1</sup></span>
             <span>Anonymous Author<sup>1</sup></span>
             <span>Anonymous Author<sup>1</sup></span>
@@ -51,7 +51,7 @@
           <p class="author-note"><sup>1</sup> Affiliation withheld for anonymous review</p>
           <div class="affiliations">
             <span>Anonymous CoRL 2026 submission</span>
-          </div>
+          </div> -->
 
           <div class="hero-actions">
             <div class="cta-row">
@@ -70,7 +70,7 @@
             <div class="video-frame">
               <!-- Real paper teaser, rasterized from figures/teaser.pdf to teaser_web.png.
                    Swap for a muted, autoplay-loop <video> teaser when a final clip is chosen. -->
-              <img src="figures/teaser_web.png" alt="CompliantWBC teaser: a whole-body compliant policy demonstrated on a heavy humanoid across a range of real-world force-aware tasks" />
+              <img src="figures/teaser_web_1.png" alt="CompliantWBC teaser: a whole-body compliant policy demonstrated on a heavy humanoid across a range of real-world force-aware tasks" />
             </div>
           </div>
           <p class="figure-caption">A heavy humanoid recruits its lower body to yield compliantly to external forces at arbitrary contact sites &mdash; static and dynamic force reaction, board wiping, squatting under payload, and cooperative payload transport.</p>
@@ -112,7 +112,10 @@
           <p class="kicker">Approach</p>
           <h2>Method</h2>
         </header>
-
+        <figure>
+          <img src="figures/pipeline.jpg" alt="The two-stage CompliantWBC training pipeline: base-policy training with the Force Latent Encoder, and residual-policy training on the frozen base" />
+          <figcaption>The two-stage <strong>CompliantWBC</strong> pipeline. Stage&nbsp;1 jointly trains the force-aware base policy and the Force Latent Encoder against the analytical controller's compliance-fidelity reward; Stage&nbsp;2 trains a bounded residual on the frozen base that edits the impedance equilibrium to compensate physics discrepancies.</figcaption>
+        </figure>
         <!-- Three contributions -->
         <div class="contrib-grid">
           <article class="contrib">
@@ -131,6 +134,11 @@
             <p>A Phong-weighted force-origin sampler with an axis-decoupled pelvis anchor &mdash; base-relative horizontal, gravity-anchored vertical &mdash; induces multi-contact, lower-body-inclusive compliance without a hand-crafted site or magnitude curriculum.</p>
           </article>
         </div>
+        <section id="pipeline" class="section">
+          <header class="section-head">
+
+          </header>
+        </section>
 
         <!-- Impedance reference controller -->
         <article class="method-block">
@@ -145,10 +153,6 @@
             to lower-body-inclusive postures. It runs only as a <em>reference</em> &mdash; its
             per-link virtual targets supervise the policy reward and are never cloned.
           </p>
-          <figure>
-            <img src="figures/pipeline.png" alt="The two-stage CompliantWBC training pipeline: base-policy training with the Force Latent Encoder, and residual-policy training on the frozen base" />
-            <figcaption>The two-stage <strong>CompliantWBC</strong> pipeline. Stage&nbsp;1 jointly trains the force-aware base policy and the Force Latent Encoder against the analytical controller's compliance-fidelity reward; Stage&nbsp;2 trains a bounded residual on the frozen base that edits the impedance equilibrium to compensate physics discrepancies.</figcaption>
-          </figure>
         </article>
 
         <!-- Base policy + Force Latent Encoder -->

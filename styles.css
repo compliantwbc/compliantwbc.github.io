@@ -16,10 +16,10 @@
   --surface1: #bcc0cc;
   --base: #eff1f5;
 
-  --page-bg: #f7efe7;
-  --card-bg: #fcf9f5b8;
+  --page-bg: #ffffff;
+  --card-bg: #f5fbffa6;
   --card-bg-solid: #fffcf7;
-  --accent: #8b5e34;          /* warm brown — links / highlights */
+  --accent: #0e2d55;          /* warm brown — links / highlights */
   --ink: #1f1d1a;             /* dark button background */
   --ink-text: #f6f0e7;
 
@@ -201,15 +201,15 @@ img, video {
 .cta:hover { transform: translateY(-1px); box-shadow: 0 8px 20px #4c4f6914; }
 
 .cta.primary { background: var(--ink); color: var(--ink-text); border-color: var(--ink); }
-.cta-secondary { background: #fffcf7b8; border-color: #4c4f691f; color: var(--text); }
+.cta-secondary { background: #f7fdffb8; border-color: #4c4f691f; color: var(--text); }
 
 .hero-media { display: flex; justify-content: center; width: 100%; }
 
 .video-frame {
   width: 100%;
   max-width: 1080px;
-  border-radius: 18px;
-  background: #dbd4ca;
+  border-radius: 4px;
+  background: #ffffff;
   position: relative;
   overflow: hidden;
   box-shadow: 0 24px 60px #3a30231a;
@@ -423,11 +423,11 @@ img, video {
 }
 
 .step--1 {
-  --step-tint: rgba(248, 241, 230, 0.82);
+  --step-tint: rgba(209, 234, 252, 0.911);
   --step-accent: rgba(183, 145, 87, 0.22);
 }
 .step--2 {
-  --step-tint: rgba(239, 243, 235, 0.82);
+  --step-tint: rgba(201, 232, 253, 0.404);
   --step-accent: rgba(120, 142, 106, 0.22);
 }
 
@@ -539,7 +539,7 @@ table.data th:first-child, table.data td:first-child {
 table.data tbody tr:first-child td { border-top: 1px solid rgba(76, 79, 105, 0.14); }
 
 table.data tr.ours td {
-  background: rgba(183, 145, 87, 0.12);
+  background: rgba(139, 200, 241, 0.12);
   font-weight: 600;
 }
 
@@ -633,7 +633,7 @@ pre.bibtex {
   margin: 0;
   padding: 16px;
   border-radius: var(--radius-s);
-  background: #fffcf7;
+  background: #ffffff;
   border: 1px solid rgba(76, 79, 105, 0.1);
   overflow-x: auto;
   font-family: var(--mono);
