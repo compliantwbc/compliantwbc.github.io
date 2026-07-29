@@ -169,7 +169,7 @@
         <article class="method-block">
           <p class="kicker">Force-Aware Base Policy</p>
           <h3>Force Latent Encoder</h3>
-          <div class="method-split">
+          <div class="method-split method-split--latent">
             <div class="method-split-text">
               <p>
                 A variational encoder maps a 160&nbsp;ms window of proprioception, torques, and
@@ -183,7 +183,14 @@
                 class</em> &mdash; none, left, right, center, mixed &mdash; as the t-SNE shows.
               </p>
             </div>
-            <img src="figures/latent.jpeg" alt="t-SNE of the force latent: embeddings cluster by perturbation class (none, left, right, center, mixed)" />
+            <figure class="latent3d-figure">
+              <div id="latent3d" class="latent3d">
+                <noscript>
+                  <img src="figures/latent.jpeg" alt="t-SNE of the force latent: embeddings cluster by perturbation class (none, left, right, center, mixed)" />
+                </noscript>
+              </div>
+              <figcaption>3-D t-SNE of the 32-D force latent, coloured by perturbation class. Drag to rotate, scroll to zoom, click a legend entry to isolate a class.</figcaption>
+            </figure>
           </div>
         </article>
 
@@ -582,6 +589,9 @@
   </footer>
 
 </main>
+
+<script src="figures/force_latent_tsne_3d.js"></script>
+<script src="latent3d.js" defer></script>
 
 <script>
   /* ---- Sticky TOC: highlight the section nearest the viewport anchor ---- */
