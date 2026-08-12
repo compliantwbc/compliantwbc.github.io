@@ -431,9 +431,13 @@
             toward the upper-body-only regime; removing the residual hurts force-aware tracking
             E<sub>cmd</sub><sup>force</sup> the most.
           </p>
-          <figure>
-            <img src="figures/torque.jpeg" alt="Joint-torque trajectories of compliant vs. non-compliant controllers under a pelvis perturbation" />
-            <figcaption>Joint torque under a pelvis perturbation. The compliant policy (orange) keeps lower-body torques far smaller than the non-compliant tracker (blue) and stays clear of the saturation bound &mdash; making concrete the resist-and-fail behaviour behind TWIST2's low success rate.</figcaption>
+          <figure class="torqueplot-figure">
+            <div id="torqueplot" class="torqueplot">
+              <noscript>
+                <img src="figures/torque.jpeg" alt="Joint-torque trajectories of compliant vs. non-compliant controllers under a pelvis perturbation" />
+              </noscript>
+            </div>
+            <figcaption>Joint torque under a pelvis perturbation. The compliant policy (orange) keeps lower-body torques far smaller than the non-compliant tracker (blue) and stays clear of the saturation bound &mdash; making concrete the resist-and-fail behaviour behind TWIST2's low success rate. The trace sweeps out in time and loops; switch to <em>Static</em> for the full capture at once. Drag to pan, scroll to zoom, hover to read off values, click a legend entry to hide a trace.</figcaption>
           </figure>
         </article>
 
@@ -592,6 +596,8 @@
 
 <script src="figures/force_latent_tsne_3d.js"></script>
 <script src="latent3d.js" defer></script>
+<script src="figures/joint_torque_force.js"></script>
+<script src="torqueplot.js" defer></script>
 
 <script>
   /* ---- Sticky TOC: highlight the section nearest the viewport anchor ---- */
